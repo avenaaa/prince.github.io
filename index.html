@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Abina Capital Bank</title>
+  <link rel="icon" type="image/x-icon" href="logo.png">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #e3f2fd, #fce4ec);
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #620000;
+      color: white;
+      padding: 3px 40px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    main {
+      max-width: 800px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    h2, h3 {
+      color: #333;
+    }
+    
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      transition: border 0.3s;
+    }
+
+    input[type="text"]:focus, input[type="number"]:focus {
+      border-color: #1976d2;
+      outline: none;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 10px 5px 0 0;
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    button:hover {
+      background-color: #0d47a1;
+      transform: scale(1.05);
+    }
+
+    #queueList {
+      margin-top: 30px;
+    }
+
+    .client-box {
+      background: #f1f8e9;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-left: 5px solid #43a047;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      transition: transform 0.2s;
+    }
+
+    .client-box:hover {
+      transform: translateX(5px);
+    }
+
+    .client-box span {
+      font-weight: bold;
+      color: #2e7d32;
+    }
+
+    .teller-box {
+      margin-top: 40px;
+      padding: 20px;
+      background: #e8f5e9;
+      border: 1px solid #c8e6c9;
+      border-radius: 10px;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #620000;
+      color: white;
+      margin-top: 40px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Abina Capital Bank - Loan Payment</h1>
+  </header>
+
+  <main>
+    <h2>Queue Registration</h2>
+
+    <label for="clientName">Client Name:</label>
+    <input type="text" id="clientName" placeholder="Enter name">
+    <button onclick="addClient()">Get Queue Number</button>
+
+    <div id="queueList"></div>
+
+    <div class="teller-box" id="tellerBox" style="display: none;">
+      <h3>: <span id="currentClientName"></span> (Queue <span id="currentQueueNumber"></span>)</h3>
+      <label for="bankName">Enter Bank Account Name:</label>
+      <input type="text" id="bankName" placeholder="e.g. Juan Dela Cruz">
+
+      <label for="clientID">Client ID:</label>
+      <input type="text" id="clientID" placeholder="Enter your ID number">
+
+      <label for="amountToPay">Amount to Pay:</label>
+      <input type="number" id="amountToPay" placeholder="₱0.00">
+
+      <button onclick="makePayment()">Pay Now</button>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 Abina Capital Bank. All rights reserved.
+  </footer>
+
+  <script>
+    let queue = [];
+    let currentNumber = 1;
+
+    function addClient() {
+      const name = document.getElementById('clientName').value;
+      if (!name) return alert('Please enter a name!');
+      queue.push({ number: currentNumber, name });
+      updateQueueDisplay();
+      currentNumber++;
+      document.getElementById('clientName').value = '';
+
+      if (queue.length === 1) {
+        serveNextClient();
+      }
+    }
+
+    function updateQueueDisplay() {
+      const list = document.getElementById('queueList');
+      list.innerHTML = '<h3>Client Queue</h3>';
+      queue.forEach(client => {
+        list.innerHTML += `<div class="client-box"> ${client.number} - ‎  <span> ${client.name}</span></div>`;
+      });
+    }
+
+    function serveNextClient() {
+      if (queue.length === 0) {
+        document.getElementById('tellerBox').style.display = 'none';
+        alert("No more clients in queue.");
+        return;
+      }
+
+      const current = queue[0];
+      document.getElementById('tellerBox').style.display = 'block';
+      document.getElementById('currentClientName').innerText = current.name;
+      document.getElementById('currentQueueNumber').innerText = current.number;
+      document.getElementById('bankName').value = '';
+      document.getElementById('clientID').value = '';
+      document.getElementById('amountToPay').value = '';
+    }
+
+    function makePayment() {
+      const bank = document.getElementById('bankName').value;
+      const id = document.getElementById('clientID').value;
+      const amount = document.getElementById('amountToPay').value;
+
+      if (!bank || !id || !amount) {
+        return alert("Please fill out all payment details.");
+      }
+
+      const current = queue.shift();
+      alert(` ${bank} has paid ₱${amount} Loan Payment.`);
+
+      updateQueueDisplay();
+      serveNextClient();
+    }
+  </script>
+
+</body>
+</html>
